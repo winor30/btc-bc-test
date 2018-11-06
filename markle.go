@@ -72,14 +72,38 @@ func toHash(txHex string) chainhash.Hash {
 	return chainhash.DoubleHashH(bytes)
 }
 
-func main() {
-	txHex1 := "4eb8629ffb3bdf1035951d6df78fdb0bf5770a1b6b5744995ad593a52b8c2dc3"
-	txHex2 := "ba219c854e7a05df49d45e9c97bd006f3ef9daefe93a43a82c82cf0eef02569d"
-	hash1 := toHash(txHex1)
-	hash2 := toHash(txHex2)
-	fmt.Println(hash1)
-	fmt.Println(hash2)
+func toSumHash(txs []chainhash.Hash) []chainhash.Hash {
+	fmt.Println(txs)
+	if len(txs) == 1 {
+		return txs
+	}
 
-	hashSum := toHash(txHex1 + txHex2)
-	fmt.Println(hashSum)
+	var smtxs []chainhash.Hash
+	for i := 0; i < len(txs)/2+1; i++ {
+		if 1+2*i < len(txs) {
+			smtxs = append(smtxs, toHash(txs[2*i].String()+txs[1+2*i].String()))
+		} else if 1+2*i == len(txs) {
+			smtxs = append(smtxs, toHash(txs[2*i].String()+txs[2*i].String()))
+		}
+	}
+	return toSumHash(smtxs)
+}
+
+func main() {
+	fmt.Println(`"aaa", "bbb", "ccc", "ddd", "eee", "fff", "ggg", "hhh"`)
+	txs := []string{"aaa", "bbb", "ccc", "ddd", "eee", "fff", "ggg", "hhh"}
+	var txHashs []chainhash.Hash
+	for _, tx := range txs {
+		txHashs = append(txHashs, toHash(tx))
+	}
+	fmt.Println(toSumHash(txHashs))
+
+	fmt.Println(`"ccc", "ddd", "aaa", "bbb", "eee"`)
+	txs = []string{"ccc", "ddd", "aaa", "bbb", "eee"}
+	txHashs = []chainhash.Hash{}
+	for _, tx := range txs {
+		txHashs = append(txHashs, toHash(tx))
+	}
+
+	fmt.Println(toSumHash(txHashs))
 }
